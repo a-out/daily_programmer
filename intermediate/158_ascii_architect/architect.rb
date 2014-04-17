@@ -1,4 +1,3 @@
-require 'pp'
 module AsciiArchitect
 
    # converts a letter a-j to the proper line
@@ -35,25 +34,22 @@ module AsciiArchitect
 
    def translate(lines)
       translated = []
+      longest_line = lines.map { |l| l.size }.max
 
-      # skim off a character from each line,
-      # essentially flipping the shape by 90 degrees
-      for i in 0..lines.size do
-         new_string = ""
+      # essentially rotates the shape 90 degrees clockwise,
+      # and then mirrors it on the y axis
+      for i in 0..longest_line
+         new_line = ""
          lines.map { |line|
-            if line.size > i
-               new_string << line[i]
-            end
+            padded_line = line.ljust(lines.size)
+            new_line << padded_line[i]
          }
 
-         translated << new_string unless new_string.size == 0
+         translated << new_line unless new_line.size == 0
       end
 
-      # pad the left side of the lines with zeroes,
-      # essentially pushing the shape to the right side
-      translated.reverse.map { |line|
-         line.rjust(translated.size)
-      }
+      # reverse mirrors the shape on the x axis
+      return translated.reverse
    end
 
 end
@@ -61,15 +57,7 @@ end
 include AsciiArchitect
 
 def main
-   strings = []
-   'abcdefghij'.split('').map { |char|
-      strings << line(char)
-   }
-
-   # pp translate(strings)
-   parsed = parse("j3f3e")
-   pp parsed
-
+   parsed = parse(STDIN.readline)
    puts translate(parsed.map { |token|
       process_line(token)
    })
