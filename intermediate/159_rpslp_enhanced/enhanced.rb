@@ -50,11 +50,13 @@ end
 
 def ai_choice(ai_data)
 	max_times_chosen = ai_data.values.max
-	# optimal choices are simply ones that the player has picked the most
+	# likely choices are simply ones that the player has picked the most
 	likely_choices = ai_data.select { |choice, amt| amt == max_times_chosen }.keys
 
-	# if there is more than one possible choice, pick one at random
+	# if there is more than one possible choice, predict one at random
 	predicted = likely_choices[rand(likely_choices.size - 1)]
+
+	# pick a gesture that beats the predicted one
 	WINNERS.select { |g| g[:beats] == predicted }[0][:name]
 end
 
@@ -69,7 +71,7 @@ def end_game_stats(won, lost, played)
 	puts "End-game Stats"
 	puts "Wins: #{won}"
 	puts "Losses: #{lost}"
-	puts "Ties = #{played - (won + lost)}"
+	puts "Ties: #{played - (won + lost)}"
 	puts
 end
 
