@@ -1,9 +1,9 @@
 require_relative './blackjack.rb'
 require 'pp'
 
-describe 'Deck' do 
+describe 'Deck' do
 
-   before :each do 
+   before :each do
       @deck = Deck.new
    end
 
@@ -28,5 +28,5 @@ describe 'Deck' do
          card1.should_not eq card2
       end
    end
-   
+
 end
