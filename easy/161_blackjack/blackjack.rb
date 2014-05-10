@@ -8,6 +8,9 @@ class Card
       return ""
    end
 
+   def value
+      type
+   end
 end
 
 class Deck
@@ -15,7 +18,7 @@ class Deck
    attr_accessor :cards
 
    SUITS = [:diamonds, :spades, :clubs, :hearts]
-   FACE_CARDS = {jack: 11, queen: 12, king: 13, ace: 1}
+   FACE_CARDS = [:jack, :queen, :king, :ace]
 
    def initialize
       @cards = []
@@ -38,6 +41,16 @@ class Deck
 
    def draw
       return @cards.pop
+   end
+end
+
+class Hand
+   def initiialize(card1, card2)
+      @card1, @card2, = card1, card2
+   end
+
+   def total
+      return @card1.
    end
 end
 
