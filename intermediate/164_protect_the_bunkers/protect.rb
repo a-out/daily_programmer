@@ -1,8 +1,6 @@
 require 'pp'
 
-input = File.open('example1', 'r')
-
-TILES = {
+TILE_DEFS = {
    '*' => :nest,
    '#' => :impassable,
    '+' => :unreliable,
@@ -12,7 +10,7 @@ TILES = {
 
 def find_tiles(type, map)
    map.select { |key, val|
-      val == type
+      TILE_DEFS[val] == type
    }
 end
 
@@ -27,21 +25,46 @@ def adjacent(vector, map)
    }.select { |vec| map.keys.include?(vec)}
 end
 
-def step(map)
-
+def print_map(map, size)
+   for x in 0..size
+      for y in 0..size
+         STDOUT.print "#{map[[x, y]]} "
+      end
+         puts
+   end
 end
 
-map_height, map_width = input.gets.chomp.split(' ')
-map = Hash.new
-strings = input.readlines.map(&:chomp)
+def step(map)
+   nests = find_tiles(:nest, map)
 
-strings.each_with_index { |str, i| 
-   str.split('').each_with_index { |char, j|
-      map[[i, j]] = TILES[char]
+   # find vectors of all tiles adjacent to nests
+   adjacent_to_nests = nests.map { |key, val|
+      adjacent(key, map)
+   }.flatten(1)
+
+   # turn array of vectors into nested array
+   new_nest_tiles = adjacent_to_nests.map { |adj_tile|
+      [adj_tile, '*']
    }
-}
 
-#pp find_tiles(:unreliable, map)
-pp map
-pp adjacent([5, 5], map)
-#pp adjacent([5, 5], map)
+   # turn vector array into a hash of nest tiles
+   map.merge(Hash[new_nest_tiles])
+end
+
+if ($0 == __FILE__)
+   input = File.open('example1', 'r')
+
+   map_height, map_width = input.gets.chomp.split(' ')
+   map = Hash.new
+   strings = input.readlines.map(&:chomp)
+
+   strings.each_with_index { |str, i| 
+      str.split('').each_with_index { |char, j|
+         map[[i, j]] = char
+      }
+   }
+
+   print_map(map, 6)
+   print_map(step(map), 6)
+   print_map(step(step(map)), 6)
+end
