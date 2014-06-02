@@ -18,11 +18,17 @@ def addVector (v1, v2)
    [v1[0] + v2[0], v1[1] + v2[1]]
 end
 
+def distVector (v1, v2)
+   x = (v1[0] - v2[0]).abs
+   y = (v1[1] - v2[1]).abs
+   x * y
+end
+
 def adjacent(vector, map)
    modVectors = [1, 0, -1, 1, 0, -1].combination(2).to_a.uniq
-   modVectors.map { |modVec| 
+   modVectors.map { |modVec|
       addVector(vector, modVec)
-   }.select { |vec| map.keys.include?(vec)}
+   }.select { |vec| map.keys.include?(vec) }
 end
 
 def print_map(map, size)
@@ -32,6 +38,16 @@ def print_map(map, size)
       end
          puts
    end
+end
+
+# find nearest tile of type in list of tiles
+def find_nearest(x, y, type, tiles)
+   tiles.to_a.select { |tile|
+      TILE_DEFS[tile.last] == type
+   }.sort { |v1, v2|
+      distVector(v1.first, [x, y]) <=>
+      distVector(v2.first, [x, y])
+   }.first
 end
 
 def step(map)
@@ -48,6 +64,7 @@ def step(map)
    }
 
    # turn vector array into a hash of nest tiles
+   # and merge it with the previous map, updating it
    map.merge(Hash[new_nest_tiles])
 end
 
@@ -58,7 +75,7 @@ def map_from_file(file)
    map = Hash.new
    strings = input.readlines.map(&:chomp)
 
-   strings.each_with_index { |str, i| 
+   strings.each_with_index { |str, i|
       str.split('').each_with_index { |char, j|
          map[[i, j]] = char
       }
@@ -70,7 +87,9 @@ end
 if ($0 == __FILE__)
    map = map_from_file('example1')
 
-   print_map(map, 6)
-   print_map(step(map), 6)
-   print_map(step(step(map)), 6)
+   map_stepped = step(map)
+   print_map(map_stepped, 6)
+
+   pp find_nearest(3, 3, :nest, map_stepped)
+
 end
