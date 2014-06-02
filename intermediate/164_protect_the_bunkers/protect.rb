@@ -51,8 +51,8 @@ def step(map)
    map.merge(Hash[new_nest_tiles])
 end
 
-if ($0 == __FILE__)
-   input = File.open('example1', 'r')
+def map_from_file(file)
+   input = File.open(file, 'r')
 
    map_height, map_width = input.gets.chomp.split(' ')
    map = Hash.new
@@ -63,6 +63,12 @@ if ($0 == __FILE__)
          map[[i, j]] = char
       }
    }
+
+   return map
+end
+
+if ($0 == __FILE__)
+   map = map_from_file('example1')
 
    print_map(map, 6)
    print_map(step(map), 6)
