@@ -24,6 +24,16 @@ def distVector (v1, v2)
    x * y
 end
 
+def direction(v1, v2)
+   diff_x = v1[0] - v2[0]
+   diff_y = v1[1] - v2[1]
+   
+   x = if diff_x > 0 then -1 elsif diff_x < 0 then 1 else 0 end
+   y = if diff_y > 0 then -1 elsif diff_y < 0 then 1 else 0 end
+
+   [x, y]
+end
+
 def adjacent(vector, map)
    modVectors = [1, 0, -1, 1, 0, -1].combination(2).to_a.uniq
    modVectors.map { |modVec|
@@ -41,13 +51,13 @@ def print_map(map, size)
 end
 
 # find nearest tile of type in list of tiles
-def find_nearest(x, y, type, tiles)
+def find_nearest(vector, type, tiles)
    tiles.to_a.select { |tile|
       TILE_DEFS[tile.last] == type
    }.sort { |v1, v2|
-      distVector(v1.first, [x, y]) <=>
-      distVector(v2.first, [x, y])
-   }.first
+      distVector(v1.first, vector) <=>
+      distVector(v2.first, vector)
+   }.first.first
 end
 
 def step(map)
@@ -88,8 +98,19 @@ if ($0 == __FILE__)
    map = map_from_file('example1')
 
    map_stepped = step(map)
+   map_stepped = map_stepped.merge({ [3, 5] => 'B'})
    print_map(map_stepped, 6)
 
-   pp find_nearest(3, 3, :nest, map_stepped)
+   bunker = [3, 5]
+   pp nearest = find_nearest([3, 5], :nest, map_stepped)
+   pp dir = direction(bunker, nearest)
+
+   new_wall_pos = addVector(bunker, dir)
+
+   new_map = map_stepped.merge({
+      new_wall_pos => 'o'
+   })
+
+   print_map(new_map, 6)
 
 end
