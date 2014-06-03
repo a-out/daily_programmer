@@ -14,11 +14,11 @@ def find_tiles(type, map)
    }
 end
 
-def addVector (v1, v2)
+def add_vector (v1, v2)
    [v1[0] + v2[0], v1[1] + v2[1]]
 end
 
-def distVector (v1, v2)
+def dist_vector (v1, v2)
    x = (v1[0] - v2[0]).abs
    y = (v1[1] - v2[1]).abs
    x * y
@@ -37,7 +37,7 @@ end
 def adjacent(vector, map)
    modVectors = [1, 0, -1, 1, 0, -1].combination(2).to_a.uniq
    modVectors.map { |modVec|
-      addVector(vector, modVec)
+      add_vector(vector, modVec)
    }.select { |vec| map.keys.include?(vec) }
 end
 
@@ -55,8 +55,8 @@ def find_nearest(vector, type, tiles)
    tiles.to_a.select { |tile|
       TILE_DEFS[tile.last] == type
    }.sort { |v1, v2|
-      distVector(v1.first, vector) <=>
-      distVector(v2.first, vector)
+      dist_vector(v1.first, vector) <=>
+      dist_vector(v2.first, vector)
    }.first.first
 end
 
@@ -105,7 +105,7 @@ if ($0 == __FILE__)
    pp nearest = find_nearest([3, 5], :nest, map_stepped)
    pp dir = direction(bunker, nearest)
 
-   new_wall_pos = addVector(bunker, dir)
+   new_wall_pos = add_vector(bunker, dir)
 
    new_map = map_stepped.merge({
       new_wall_pos => 'o'
