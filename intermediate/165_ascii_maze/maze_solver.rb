@@ -31,7 +31,7 @@ def solve(pos, grid)
       return true
    end
 
-   grid[pos] = '.' unless current_tile == 'S'
+   grid[pos] = '*' unless current_tile == 'S'
 
    walkable_adjacent(pos, grid).each { |adjacent|
       # solved. back out
