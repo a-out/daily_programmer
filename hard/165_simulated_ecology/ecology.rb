@@ -1,10 +1,29 @@
 require_relative 'vector_math'
 
-class Tree
+class ForestInhabitant
+
+   @@symbol = '.'
+
+   def initialize(x, y)
+      @x, @y = x, y
+   end
+
+   def move(x, y)
+      @x, @y = x, y
+   end
+
+   def symbol
+      @@symbol
+   end
+
+end
+
+class Tree < ForestInhabitant
    @@symbols = { sapling: 's', tree: 'T', elder: 'E' }
 
    def initialize(x, y, maturity = :tree)
-      @x, @y, @maturity, = x, y, maturity
+      super(x, y)
+      @maturity = maturity
    end
 
    def symbol
@@ -12,26 +31,12 @@ class Tree
    end
 end
 
-class Bear
-
-   def initialize(x, y)
-      @x, @y = x, y
-   end
-
-   def symbol
-      'B'
-   end
+class Bear < ForestInhabitant
+   @@symbol = 'B'
 end
 
-class Lumberjack
-
-   def initialize(x, y)
-      @x, @y = x, y
-   end
-
-   def symbol
-      'L'
-   end
+class Lumberjack < ForestInhabitant
+   @@symbol = 'L'
 end
 
 class Forest
