@@ -16,6 +16,9 @@ class ForestInhabitant
       @@symbol
    end
 
+   def random(percent)
+      rand(100) < percent
+   end
 end
 
 class Tree < ForestInhabitant
@@ -24,11 +27,35 @@ class Tree < ForestInhabitant
    def initialize(x, y, maturity = :tree)
       super(x, y)
       @maturity = maturity
+      @age = 0
    end
 
    def symbol
       @@symbols[@maturity]
    end
+
+   def step(forest)
+      age
+   end
+
+   def age
+      @age += 1
+      if @maturity == :sapling
+         # grow into a tree
+         if @age == 12
+            @maturity = :tree
+            @age = 0
+         end
+      elsif @maturity == :tree
+         # grow into an elder tree
+         if @age == 120
+            puts "tree matured into an elder tree"
+            @maturity = :elder_tree
+            @age = 0
+         end
+      end
+   end
+
 end
 
 class Bear < ForestInhabitant
@@ -59,6 +86,9 @@ class Forest
                occupant.new(x, y)
             end
          end
+
+         grid[[0, 0]] = Tree.new(0, 0, :sapling)
+         grid
       end
 
       grid
@@ -93,8 +123,19 @@ class Forest
       #occupant.move(dest[0], dest[1])
    end
 
-   def step
+   def get_all(inhabitant)
+      @grid.values.select { |val|
+         val.class == inhabitant
+      }
+   end
 
+   def step(months = 1)
+      months.times {
+         trees = get_all(Tree)
+         trees.each { |tree|
+            tree.step(@grid)
+         }
+      }
    end
 
 end
