@@ -18,46 +18,49 @@ describe 'Forest' do
 
    describe 'Forest#step' do
       it 'simulates one month of forest activity' do
+         pre_step_sapling_count = @forest.get_all(Tree, :sapling).size
          @forest.step
+
+         expect(@forest.get_all(Tree, :sapling).size).to be > pre_step_sapling_count
       end
    end
 
-   # describe 'Forest#adjacent' do
-   #    it 'returns all spaces adjacent to pos, with an optional filter' do
-   #       all_adjacent = @forest.adjacent([1, 1])
-   #       dirt_adjacent = @forest.adjacent([1, 1], Dirt)
-   #       tree_adjacent = @forest.adjacent([1, 1], Tree)
-   #       sapling_adjacent = @forest.adjacent([1, 1], Tree, :sapling)
+   describe 'Forest#adjacent' do
+      it 'returns all spaces adjacent to pos, with an optional filter' do
+         all_adjacent = @forest.adjacent([1, 1])
+         dirt_adjacent = @forest.adjacent([1, 1], Dirt)
+         tree_adjacent = @forest.adjacent([1, 1], Tree)
+         sapling_adjacent = @forest.adjacent([1, 1], Tree, :sapling)
 
-   #       all_adjacent.size.should eq 8
-   #       dirt_adjacent.size.should eq 3
-   #       tree_adjacent.size.should eq 3
-   #       sapling_adjacent.size.should eq 1
-   #    end
-   # end
+         expect(all_adjacent.size).to eq 8
+         expect(dirt_adjacent.size).to eq 3
+         expect(tree_adjacent.size).to eq 4
+         expect(sapling_adjacent.size).to eq 1
+      end
+   end
 
-   # describe 'Forest#move' do
-   #    it 'moves a forest occupant to a new space' do
-   #       sapling = @forest.get([0, 0])
-   #       @forest.move(sapling, [0, 1])
+   describe 'Forest#move' do
+      it 'moves a forest occupant to a new space' do
+         sapling = @forest.get([0, 0])
+         @forest.move(sapling, [0, 1])
 
-   #       sapling.pos.should eq [0, 1]
-   #       @forest.get([0, 1]).should eq sapling
-   #    end
-   # end
+         sapling.pos.should eq [0, 1]
+         expect(@forest.get([0, 1])).to eq sapling
+      end
+   end
 
-   # describe 'Forest#get_all' do
-   #    it 'gets each inhabitant that matches type' do
-   #       trees = @forest.get_all(Tree)
-   #       saplings = @forest.get_all(Tree, :sapling)
-   #       lumberjacks = @forest.get_all(Lumberjack)
-   #       bears = @forest.get_all(Bear)
+   describe 'Forest#get_all' do
+      it 'gets each inhabitant that matches type' do
+         trees = @forest.get_all(Tree)
+         saplings = @forest.get_all(Tree, :sapling)
+         lumberjacks = @forest.get_all(Lumberjack)
+         bears = @forest.get_all(Bear)
 
-   #       trees.size.should eq 57
-   #       saplings.size.should eq 1
-   #       lumberjacks.size.should eq 10
-   #       bears.size.should eq 6
-   #    end
-   # end
+         expect(trees.size).to eq 61
+         expect(saplings.size).to eq 1
+         expect(lumberjacks.size).to eq 11
+         expect(bears.size).to eq 3
+      end
+   end
 
 end

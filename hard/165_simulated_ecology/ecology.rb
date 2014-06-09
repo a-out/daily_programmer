@@ -44,9 +44,16 @@ class Tree < ForestInhabitant
       if @maturity == :tree && random(10) ||
          @maturity == :elder && random(20)
 
-         empty_adjacent = forest.adjacent(@pos, Dirt).sample.pos
-         forest.set(empty_adjacent, Tree.new(empty_adjacent, :sapling))
-         forest.event(:sapling_planted)
+         # get all free adjacent spaces
+         empty_adjacent = forest.adjacent(@pos, Dirt)         
+
+         # only create sapling if we have a free adjacent space
+         if empty_adjacent.size > 0
+            pos = empty_adjacent.sample.pos
+            forest.set(pos, Tree.new(pos, :sapling))
+            forest.event(:sapling_planted)
+         end
+
       end
    end
 
@@ -124,12 +131,12 @@ class Forest
    end
 
    def set(pos, occupant)
-      puts "setting #{pos} to #{occupant.class}"
+      #puts "setting #{pos} to #{occupant.class}"
       @grid[pos] = occupant
    end
 
    def event(event_type)
-      puts "EVENT: #{event_type.to_s}"
+      #puts "EVENT: #{event_type.to_s}"
       @events[@month] << event_type unless 
          !@@forest_events.include?(event_type)
    end
