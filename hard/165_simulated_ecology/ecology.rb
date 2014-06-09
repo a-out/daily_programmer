@@ -36,6 +36,17 @@ class Tree < ForestInhabitant
       @@symbols[@maturity]
    end
 
+   def lumber
+      case @maturity
+      when :tree
+         1
+      when :elder
+         2
+      else
+         0
+      end
+   end
+
    def step(forest)
       age
 
@@ -84,8 +95,51 @@ class Bear < ForestInhabitant
 end
 
 class Lumberjack < ForestInhabitant
+
+   def initialize(pos)
+      super(pos)
+      @lumber = 0
+   end
+
    def symbol
       'L'
+   end
+
+   def step(forest)
+      wander_distance = (0..3).to_a.sample
+      wander(forest, wander_distance)
+
+   end
+
+   def wander(forest, distance)
+      distance.times {
+         free_spaces = forest.adjacent(@pos).select { |occupant|
+            occupant.class != Bear
+         }
+
+         if free_spaces.size > 0
+            new_space = free_spaces.sample
+
+            # chop down any mature trees we come across
+            lumber_chopped = try_chop(new_space, forest)
+            forest.move(self, new_space.pos)
+
+            # stop moving for the month if we chopped down a tree
+            if lumber_chopped > 0
+               @lumber += lumber_chopped
+               break
+            end
+         end         
+      }
+   end
+
+   def try_chop(space, forest)
+      if space.class == Tree && [:tree, :elder].include?(space.maturity)
+         forest.event(:tree_chopped)
+         space.lumber
+      else
+         0
+      end
    end
 end
 
@@ -94,7 +148,8 @@ class Forest
    @@forest_events = [
       :sapling_to_tree,
       :tree_to_elder,
-      :sapling_planted
+      :sapling_planted,
+      :tree_chopped
    ]
 
    attr_accessor :grid
@@ -133,6 +188,10 @@ class Forest
    def set(pos, occupant)
       #puts "setting #{pos} to #{occupant.class}"
       @grid[pos] = occupant
+   end
+
+   def remove(pos)
+      @grid[pos] = Dirt.new(pos)
    end
 
    def event(event_type)
@@ -189,6 +248,11 @@ class Forest
          trees = get_all(Tree)
          trees.each { |tree|
             tree.step(self)
+         }
+
+         lumberjacks = get_all(Lumberjack)
+         lumberjacks.each { |lj|
+            lj.step(self)
          }
       }
    end

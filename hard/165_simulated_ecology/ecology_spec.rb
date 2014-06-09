@@ -22,6 +22,8 @@ describe 'Forest' do
          @forest.step
 
          expect(@forest.get_all(Tree, :sapling).size).to be > pre_step_sapling_count
+         puts
+         @forest.print
       end
    end
 
@@ -34,7 +36,7 @@ describe 'Forest' do
 
          expect(all_adjacent.size).to eq 8
          expect(dirt_adjacent.size).to eq 3
-         expect(tree_adjacent.size).to eq 4
+         expect(tree_adjacent.size).to eq 2
          expect(sapling_adjacent.size).to eq 1
       end
    end
@@ -56,10 +58,10 @@ describe 'Forest' do
          lumberjacks = @forest.get_all(Lumberjack)
          bears = @forest.get_all(Bear)
 
-         expect(trees.size).to eq 61
+         expect(trees.size).to eq 53
          expect(saplings.size).to eq 1
-         expect(lumberjacks.size).to eq 11
-         expect(bears.size).to eq 3
+         expect(lumberjacks.size).to eq 15
+         expect(bears.size).to eq 2
       end
    end
 
