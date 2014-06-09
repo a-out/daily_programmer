@@ -23,7 +23,16 @@ describe 'Forest' do
 
    describe 'Forest#adjacent' do
       it 'returns all spaces adjacent to pos, with an optional filter' do
-         @forest.adjacent(1, 1)
+         all_adjacent = @forest.adjacent([1, 1])
+         tree_adjacent = @forest.adjacent([1, 1], Tree)
+         sapling_adjacent = @forest.adjacent([1, 1], Tree, :sapling)
+
+         all_adjacent.size.should eq 8
+         all_adjacent.select { |space| !space.nil? }.size.should eq 4
+
+         tree_adjacent.size.should eq 4
+
+         sapling_adjacent.size.should eq 1
       end
    end
 

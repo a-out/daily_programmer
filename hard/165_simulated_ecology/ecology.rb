@@ -140,18 +140,18 @@ class Forest
    end
 
    def adjacent(pos, type = nil, maturity = nil)
-      VectorMath.adjacent(pos, @grid)
-      # if type.nil?
-      #    adj
-      # else
-      #    adj.select { |occupant|
-      #       if type == Tree && !maturity.nil?
-      #          occupant.class == type && occupant.maturity == maturity
-      #       else
-      #          occupant.class == type
-      #       end
-      #    }
-      # end
+      adj = VectorMath.adjacent(pos, @grid)
+      if type.nil?
+         adj
+      else
+         adj.select { |occupant|
+            if type == Tree && !maturity.nil?
+               occupant.class == type && occupant.maturity == maturity
+            else
+               occupant.class == type
+            end
+         }
+      end
    end
 
 end
