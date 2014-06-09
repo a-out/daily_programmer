@@ -1,19 +1,14 @@
 require_relative 'vector_math'
 
 class ForestInhabitant
+   attr_accessor :pos
 
-   @@symbol = '.'
-
-   def initialize(x, y)
-      @x, @y = x, y
+   def initialize(pos)
+      @pos = pos
    end
 
-   def move(x, y)
-      @x, @y = x, y
-   end
-
-   def symbol
-      @@symbol
+   def move(new_pos)
+      @pos = new_pos
    end
 
    def random(percent)
@@ -25,8 +20,8 @@ class Tree < ForestInhabitant
    @@symbols = { sapling: 's', tree: 'T', elder: 'E' }
    attr_accessor :age, :maturity
 
-   def initialize(x, y, maturity = :tree)
-      super(x, y)
+   def initialize(pos, maturity = :tree)
+      super(pos)
       @maturity = maturity
       @age = 0
    end
@@ -60,11 +55,15 @@ class Tree < ForestInhabitant
 end
 
 class Bear < ForestInhabitant
-   @@symbol = 'B'
+   def symbol
+      'B'
+   end
 end
 
 class Lumberjack < ForestInhabitant
-   @@symbol = 'L'
+   def symbol
+      'L'
+   end
 end
 
 class Forest
@@ -80,16 +79,14 @@ class Forest
       grid = Hash.new
       for y in 0..@y
          for x in 0..@x
-            occupant = choose_random            
+            occupant = choose_random
             grid[[x, y]] = if occupant.nil?
                nil
             else
-               occupant.new(x, y)
+               occupant.new([x, y])
             end
          end
-
-         grid[[0, 0]] = Tree.new(0, 0, :sapling)
-         grid
+         grid[[0, 0]] = Tree.new([0, 0], :sapling)
       end
 
       grid
@@ -120,13 +117,26 @@ class Forest
    end
 
    def move(occupant, dest)
-      @grid[dest] = occupant
-      #occupant.move(dest[0], dest[1])
+      initial_pos = occupant.pos
+      #pp initial_pos
+      occupant.move(dest)
+      @grid.merge!({
+         initial_pos => nil,
+         dest => occupant
+         })
    end
 
-   def get_all(inhabitant)
+   def get(pos)
+      @grid[pos]
+   end
+
+   def get_all(type, maturity = :tree)
       @grid.values.select { |val|
-         val.class == inhabitant
+         if type == Tree
+            val.class == type && val.maturity == maturity
+         else   
+            val.class == type
+         end
       }
    end
 

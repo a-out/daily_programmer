@@ -28,11 +28,35 @@ describe 'Forest' do
          sapling_adjacent = @forest.adjacent([1, 1], Tree, :sapling)
 
          all_adjacent.size.should eq 8
-         all_adjacent.select { |space| !space.nil? }.size.should eq 4
+         all_adjacent.select { |space| !space.nil? }.size.should eq 7
 
-         tree_adjacent.size.should eq 4
+         tree_adjacent.size.should eq 5
 
          sapling_adjacent.size.should eq 1
+      end
+   end
+
+   describe 'Forest#move' do
+      it 'moves a forest occupant to a new space' do
+         sapling = @forest.get([0, 0])
+         @forest.move(sapling, [0, 1])
+
+         sapling.pos.should eq [0, 1]
+         @forest.get([0, 1]).should eq sapling
+      end
+   end
+
+   describe 'Forest#get_all' do
+      it 'gets each inhabitant that matches type' do
+         trees = @forest.get_all(Tree)
+         saplings = @forest.get_all(Tree, :sapling)
+         lumberjacks = @forest.get_all(Lumberjack)
+         bears = @forest.get_all(Bear)
+
+         trees.size.should eq 65
+         saplings.size.should eq 1
+         lumberjacks.size.should eq 14
+         bears.size.should eq 3
       end
    end
 
