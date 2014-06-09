@@ -23,6 +23,7 @@ end
 
 class Tree < ForestInhabitant
    @@symbols = { sapling: 's', tree: 'T', elder: 'E' }
+   attr_accessor :age, :maturity
 
    def initialize(x, y, maturity = :tree)
       super(x, y)
@@ -136,6 +137,21 @@ class Forest
             tree.step(@grid)
          }
       }
+   end
+
+   def adjacent(pos, type = nil, maturity = nil)
+      VectorMath.adjacent(pos, @grid)
+      # if type.nil?
+      #    adj
+      # else
+      #    adj.select { |occupant|
+      #       if type == Tree && !maturity.nil?
+      #          occupant.class == type && occupant.maturity == maturity
+      #       else
+      #          occupant.class == type
+      #       end
+      #    }
+      # end
    end
 
 end
