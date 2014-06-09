@@ -40,15 +40,14 @@ class Tree < ForestInhabitant
       age
 
       # 10% chance for tree to spawn a sapling
-      if @maturity == :tree && random(10)
-         empty_adjacent = forest.adjacent(@pos, nil)
-         #pp empty_adjacent
-      # 20% chance for elder tree to spawn a sapling
-      elsif @maturity == :elder && random(20)
-         empty_adjacent = forest.adjacent(@pos, nil)
-         #pp empty_adjacent
-      end
+      # 10% chance for an elder tree
+      if @maturity == :tree && random(10) ||
+         @maturity == :elder && random(20)
 
+         empty_adjacent = forest.adjacent(@pos, Dirt).sample.pos
+         forest.set(empty_adjacent, Tree.new(empty_adjacent, :sapling))
+         forest.event(:sapling_planted)
+      end
    end
 
    def age
@@ -85,11 +84,19 @@ end
 
 class Forest
 
+   @@forest_events = [
+      :sapling_to_tree,
+      :tree_to_elder,
+      :sapling_planted
+   ]
+
    attr_accessor :grid
 
    def initialize(x, y)
       @x, @y = x, y
       @grid = generate
+      @month = 0
+      @events = {}
    end
 
    def generate()
@@ -114,6 +121,17 @@ class Forest
          puts
       end
       puts
+   end
+
+   def set(pos, occupant)
+      puts "setting #{pos} to #{occupant.class}"
+      @grid[pos] = occupant
+   end
+
+   def event(event_type)
+      puts "EVENT: #{event_type.to_s}"
+      @events[@month] << event_type unless 
+         !@@forest_events.include?(event_type)
    end
 
    def choose_random
@@ -143,10 +161,14 @@ class Forest
       @grid[pos]
    end
 
-   def get_all(type, maturity = :tree)
+   def get_all(type, maturity = nil)
       @grid.values.select { |val|
          if type == Tree
-            val.class == type && val.maturity == maturity
+            if maturity.nil?
+               val.class == Tree
+            else
+               val.class == Tree && val.maturity == maturity
+            end
          else   
             val.class == type
          end
@@ -155,6 +177,8 @@ class Forest
 
    def step(months = 1)
       months.times {
+         @month += 1
+         @events[@month] = []
          trees = get_all(Tree)
          trees.each { |tree|
             tree.step(self)
@@ -164,7 +188,6 @@ class Forest
 
    def adjacent(pos, type = nil, maturity = nil)
       adj = VectorMath.adjacent(pos, @grid)
-      #pp adj
       if type.nil?
          adj
       else
