@@ -9,7 +9,7 @@ module VectorMath
       directions.delete([0, 0])
       directions.map { |dir|
          grid[add_vec(vec, dir)]
-      }
+      }.compact
    end
 
 end
