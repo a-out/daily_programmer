@@ -16,6 +16,12 @@ class ForestInhabitant
    end
 end
 
+class Dirt < ForestInhabitant
+   def symbol
+      '.'
+   end
+end
+
 class Tree < ForestInhabitant
    @@symbols = { sapling: 's', tree: 'T', elder: 'E' }
    attr_accessor :age, :maturity
@@ -32,6 +38,17 @@ class Tree < ForestInhabitant
 
    def step(forest)
       age
+
+      # 10% chance for tree to spawn a sapling
+      if @maturity == :tree && random(10)
+         empty_adjacent = forest.adjacent(@pos, nil)
+         #pp empty_adjacent
+      # 20% chance for elder tree to spawn a sapling
+      elsif @maturity == :elder && random(20)
+         empty_adjacent = forest.adjacent(@pos, nil)
+         #pp empty_adjacent
+      end
+
    end
 
    def age
@@ -80,11 +97,7 @@ class Forest
       for y in 0..@y
          for x in 0..@x
             occupant = choose_random
-            grid[[x, y]] = if occupant.nil?
-               nil
-            else
-               occupant.new([x, y])
-            end
+            grid[[x, y]] = occupant.new([x, y])
          end
          grid[[0, 0]] = Tree.new([0, 0], :sapling)
       end
@@ -95,7 +108,7 @@ class Forest
    def print
       for y in 0..@y
          for x in 0..@x
-            symbol = grid[[x, y]].nil? ? '.' : grid[[x, y]].symbol
+            symbol = @grid[[x, y]].symbol       
             STDOUT.print "#{symbol} "
          end
          puts
@@ -112,7 +125,7 @@ class Forest
       when 13..62
          Tree
       else
-         nil
+         Dirt
       end
    end
 
@@ -121,7 +134,7 @@ class Forest
       #pp initial_pos
       occupant.move(dest)
       @grid.merge!({
-         initial_pos => nil,
+         initial_pos => Dirt.new(initial_pos),
          dest => occupant
          })
    end
@@ -144,13 +157,14 @@ class Forest
       months.times {
          trees = get_all(Tree)
          trees.each { |tree|
-            tree.step(@grid)
+            tree.step(self)
          }
       }
    end
 
    def adjacent(pos, type = nil, maturity = nil)
       adj = VectorMath.adjacent(pos, @grid)
+      #pp adj
       if type.nil?
          adj
       else

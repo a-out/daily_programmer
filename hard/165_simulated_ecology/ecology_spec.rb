@@ -11,27 +11,27 @@ describe 'Forest' do
 
    describe 'Forest#new' do
       it 'creates a new forest of size x and y' do
+         #pp @forest.grid
          @forest.print
       end
    end
 
-   describe 'Forest#step' do
-      it 'simulates one month of forest activity' do
-         @forest.step
-      end
-   end
+   # describe 'Forest#step' do
+   #    it 'simulates one month of forest activity' do
+   #       @forest.step
+   #    end
+   # end
 
    describe 'Forest#adjacent' do
       it 'returns all spaces adjacent to pos, with an optional filter' do
          all_adjacent = @forest.adjacent([1, 1])
+         dirt_adjacent = @forest.adjacent([1, 1], Dirt)
          tree_adjacent = @forest.adjacent([1, 1], Tree)
          sapling_adjacent = @forest.adjacent([1, 1], Tree, :sapling)
 
          all_adjacent.size.should eq 8
-         all_adjacent.select { |space| !space.nil? }.size.should eq 7
-
-         tree_adjacent.size.should eq 5
-
+         dirt_adjacent.size.should eq 3
+         tree_adjacent.size.should eq 3
          sapling_adjacent.size.should eq 1
       end
    end
@@ -53,10 +53,10 @@ describe 'Forest' do
          lumberjacks = @forest.get_all(Lumberjack)
          bears = @forest.get_all(Bear)
 
-         trees.size.should eq 65
+         trees.size.should eq 56
          saplings.size.should eq 1
-         lumberjacks.size.should eq 14
-         bears.size.should eq 3
+         lumberjacks.size.should eq 10
+         bears.size.should eq 6
       end
    end
 
