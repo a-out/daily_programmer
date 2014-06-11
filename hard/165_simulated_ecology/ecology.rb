@@ -197,8 +197,6 @@ class Forest
             occupant = choose_random
             grid[[x, y]] = occupant.new([x, y])
          end
-         grid[[0, 0]] = Tree.new([0, 0], :sapling)
-         grid[[5, 5]] = Tree.new([5, 5], :elder)
       end
 
       grid
@@ -363,7 +361,7 @@ class Forest
       if summary[:lumber_collected] > num_lumberjacks
          add_at_random_pos(Lumberjack)
       elsif summary[:lumber_collected] < num_lumberjacks
-         remove(get_all(Lumberjack).sample)
+         remove(get_all(Lumberjack).sample) unless num_lumberjacks <= 1
       end
 
       @year += 1
@@ -387,6 +385,11 @@ class Forest
 end
 
 def main
+   puts ARGV.size
+   forest_size_x =   ARGV[0].to_i
+   forest_size_y =   ARGV[1].to_i
+   num_steps =       ARGV[2].to_i
+   forest = Forest.new(forest_size_x, forest_size_y).step(num_steps)
 end
 
 if $0 == __FILE__
