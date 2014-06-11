@@ -27,6 +27,13 @@ describe 'Forest' do
       end
    end
 
+   describe 'Forest#long_step' do
+      it 'steps for a while' do
+         @forest.step(12)
+         @forest.print
+      end
+   end
+
    describe 'Forest#adjacent' do
       it 'returns all spaces adjacent to pos, with an optional filter' do
          all_adjacent = @forest.adjacent([1, 1])
@@ -35,8 +42,8 @@ describe 'Forest' do
          sapling_adjacent = @forest.adjacent([1, 1], Tree, :sapling)
 
          expect(all_adjacent.size).to eq 8
-         expect(dirt_adjacent.size).to eq 3
-         expect(tree_adjacent.size).to eq 2
+         expect(dirt_adjacent.size).to eq 1
+         expect(tree_adjacent.size).to eq 5
          expect(sapling_adjacent.size).to eq 1
       end
    end
@@ -58,10 +65,10 @@ describe 'Forest' do
          lumberjacks = @forest.get_all(Lumberjack)
          bears = @forest.get_all(Bear)
 
-         expect(trees.size).to eq 53
+         expect(trees.size).to eq 68
          expect(saplings.size).to eq 1
-         expect(lumberjacks.size).to eq 15
-         expect(bears.size).to eq 2
+         expect(lumberjacks.size).to eq 14
+         expect(bears.size).to eq 5
       end
    end
 

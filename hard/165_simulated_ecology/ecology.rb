@@ -79,7 +79,6 @@ class Tree < ForestInhabitant
       elsif @maturity == :tree
          # grow into an elder tree
          if @age == 120
-            puts "tree matured into an elder tree"
             @maturity = :elder_tree
             @age = 0
          end
@@ -91,6 +90,30 @@ end
 class Bear < ForestInhabitant
    def symbol
       'B'
+   end
+
+   def step(forest)
+      wander_distance = (0..5).to_a.sample
+      wander(forest, wander_distance)
+   end
+
+   def wander(forest, distance)
+      distance.times {
+         free_spaces = forest.adjacent(@pos)
+         new_space = free_spaces.sample
+
+         if new_space.class == Lumberjack
+            maw(new_space, forest)
+            break
+         end
+
+         forest.move(self, new_space.pos)
+      }
+   end
+
+   def maw(lumberjack, forest)
+      forest.remove(lumberjack)
+      forest.event(:lumberjack_mawed)
    end
 end
 
@@ -134,8 +157,11 @@ class Lumberjack < ForestInhabitant
    end
 
    def try_chop(space, forest)
-      if space.class == Tree && [:tree, :elder].include?(space.maturity)
+      if space.class == Tree && space.maturity == :tree
          forest.event(:tree_chopped)
+         space.lumber
+      elsif space.class == Tree && space.maturity == :elder
+         forest.event(:elder_tree_chopped)
          space.lumber
       else
          0
@@ -149,7 +175,9 @@ class Forest
       :sapling_to_tree,
       :tree_to_elder,
       :sapling_planted,
-      :tree_chopped
+      :tree_chopped,
+      :elder_tree_chopped,
+      :lumberjack_mawed
    ]
 
    attr_accessor :grid
@@ -158,6 +186,7 @@ class Forest
       @x, @y = x, y
       @grid = generate
       @month = 0
+      @year = 0
       @events = {}
    end
 
@@ -169,6 +198,7 @@ class Forest
             grid[[x, y]] = occupant.new([x, y])
          end
          grid[[0, 0]] = Tree.new([0, 0], :sapling)
+         grid[[5, 5]] = Tree.new([5, 5], :elder)
       end
 
       grid
@@ -186,18 +216,24 @@ class Forest
    end
 
    def set(pos, occupant)
-      #puts "setting #{pos} to #{occupant.class}"
       @grid[pos] = occupant
    end
 
-   def remove(pos)
-      @grid[pos] = Dirt.new(pos)
+   def add_at_random_pos(occupant_type)
+      new_pos = get_all(Dirt).sample.pos
+      set(new_pos, occupant_type.new(new_pos))
+   end
+
+   def remove(occupant)
+      @grid[occupant.pos] = Dirt.new(occupant.pos)
    end
 
    def event(event_type)
-      #puts "EVENT: #{event_type.to_s}"
-      @events[@month] << event_type unless 
-         !@@forest_events.include?(event_type)
+      if @@forest_events.include?(event_type)
+         @events[@month] << event_type
+      else
+         raise ArgumentError, "Unrecognized event name #{event_type}", caller
+      end 
    end
 
    def choose_random
@@ -242,9 +278,9 @@ class Forest
    end
 
    def step(months = 1)
-      months.times {
-         @month += 1
-         @events[@month] = []
+      months.times {         
+         @events[@month] = []         
+
          trees = get_all(Tree)
          trees.each { |tree|
             tree.step(self)
@@ -254,7 +290,59 @@ class Forest
          lumberjacks.each { |lj|
             lj.step(self)
          }
+
+         bears = get_all(Bear)
+         bears.each { |bear|
+            bear.step(self)
+         }
+
+         @month += 1
+
+         if @month % 12 == 0 
+            year_passed
+         end
       }
+   end
+
+   def year_passed
+      this_years_months = (@year * 12)..( (@year + 1) * 12 - 1)
+      this_years_stats = @events.select { |month, events| this_years_months.include?(month) }
+
+      stats = this_years_stats.flatten(2).select { |x| x.class == Symbol }
+      mawing_incidents = stats.count(:lumberjack_mawed)
+
+      
+
+      if mawing_incidents == 0
+         add_at_random_pos(Bear)
+      else
+         trapped_bear = get_all(Bear).sample
+         remove(trapped_bear)
+      end
+
+      pp stats
+
+      lumber_collected = stats.map { |event| 
+         if event == :tree_chopped
+            1
+         elsif event == :elder_tree_chopped
+            2
+         else
+            0
+         end
+      }.reduce(0, :+)
+
+      num_lumberjacks = get_all(Lumberjack).size
+
+      # add lumberjack if yearly lumber production exceeds workforce
+      # remove lumberjack if workforce exceeds yearly lumber production
+      if lumber_collected > num_lumberjacks
+         add_at_random_pos(Lumberjack)
+      elsif lumber_collected < num_lumberjacks
+         remove(get_all(Lumberjack).sample)
+      end
+
+      @year += 1
    end
 
    def adjacent(pos, type = nil, maturity = nil)
