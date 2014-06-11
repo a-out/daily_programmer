@@ -251,7 +251,6 @@ class Forest
 
    def move(occupant, dest)
       initial_pos = occupant.pos
-      #pp initial_pos
       occupant.move(dest)
       @grid.merge!({
          initial_pos => Dirt.new(initial_pos),
@@ -296,33 +295,32 @@ class Forest
             bear.step(self)
          }
 
+         
+         print_monthly_summary(@month)
          @month += 1
 
          if @month % 12 == 0 
             year_passed
+         end         
+      }
+   end
+
+   def print_monthly_summary(month)
+      summary = summarize_stats(@events[month])
+      summary.each { |key, val| 
+         if val > 0
+            month_text = month.to_s.rjust(4, '0')
+            num_text = val.to_s.rjust(4, '0')
+            desc_text = key.to_s.gsub('_', ' ')
+            puts "Month [#{month_text}]: [#{num_text}] #{desc_text}"
          end
       }
    end
 
-   def year_passed
-      this_years_months = (@year * 12)..( (@year + 1) * 12 - 1)
-      this_years_stats = @events.select { |month, events| this_years_months.include?(month) }
-
-      stats = this_years_stats.flatten(2).select { |x| x.class == Symbol }
-      mawing_incidents = stats.count(:lumberjack_mawed)
-
-      
-
-      if mawing_incidents == 0
-         add_at_random_pos(Bear)
-      else
-         trapped_bear = get_all(Bear).sample
-         remove(trapped_bear)
-      end
-
-      pp stats
-
-      lumber_collected = stats.map { |event| 
+   # takes a flat array of events, returns hash of relevant stats
+   def summarize_stats(events)
+      mawing_incidents = events.count(:lumberjack_mawed)
+      lumber_collected = events.map { |event| 
          if event == :tree_chopped
             1
          elsif event == :elder_tree_chopped
@@ -331,14 +329,40 @@ class Forest
             0
          end
       }.reduce(0, :+)
+      saplings_created = events.count(:sapling_planted)
+      saplings_aged = events.count(:sapling_to_tree)
+      trees_aged = events.count(:tree_to_elder)
+
+      {
+         saplings_created: saplings_created,
+         saplings_aged:    saplings_aged,
+         trees_aged:       trees_aged,
+         lumber_collected: lumber_collected,
+         mawing_incidents: mawing_incidents  
+      }
+   end
+
+   def year_passed
+      this_years_months = (@year * 12)..( (@year + 1) * 12 - 1)
+      this_years_stats = @events.select { |month, events| this_years_months.include?(month) }
+      stats = this_years_stats.flatten(2).select { |x| x.class == Symbol }
+
+      summary = summarize_stats(stats)
+
+      if summary[:mawing_incidents] == 0
+         add_at_random_pos(Bear)
+      else
+         trapped_bear = get_all(Bear).sample
+         remove(trapped_bear)
+      end      
 
       num_lumberjacks = get_all(Lumberjack).size
 
       # add lumberjack if yearly lumber production exceeds workforce
       # remove lumberjack if workforce exceeds yearly lumber production
-      if lumber_collected > num_lumberjacks
+      if summary[:lumber_collected] > num_lumberjacks
          add_at_random_pos(Lumberjack)
-      elsif lumber_collected < num_lumberjacks
+      elsif summary[:lumber_collected] < num_lumberjacks
          remove(get_all(Lumberjack).sample)
       end
 
