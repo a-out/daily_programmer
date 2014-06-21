@@ -1,17 +1,18 @@
 import System.IO
-import Data.Char
 
-data Grade = Grade Int
-data StudentRecord = StudentRecord String String [Grade]
+data StudentRecord = StudentRecord String String [Int] deriving (Show)
 
 parseStudentRecord :: String -> StudentRecord
 parseStudentRecord str = StudentRecord fName lName grades
    where lName    = head parsed
          fName    = head $ drop 2 parsed
-         grades   = map (Grade . strToInt) (drop 2 parsed)
+         grades   = map read (drop 3 parsed)
          parsed   = words str
-         strToInt s = s :: Int
 
-main = do
-   input <- getContents
-   putStrLn "Hello world"
+finalAverage :: StudentRecord -> Int
+finalAverage (StudentRecord _ _ g) = (sum g) `div` (length g)
+
+-- main = do
+--    input <- getContents
+--    let records = map parseStudentRecord $ lines input
+--    putStrLn "Hello world"
