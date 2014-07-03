@@ -11,8 +11,9 @@ row_b = "zxcvbnm"
 spellCheck :: [String] -> String -> String
 spellCheck wordList word = case word `elem` wordList of
    True -> word
-   False -> head $ filter (isWord wordList) wordPossibilities
+   False -> "{" ++ (corrected wordList word) ++ "}"
    where wordPossibilities = map (shift word) [-2..2]
+         corrected wl w = head $ filter (isWord wl) wordPossibilities
 
 isWord :: [String] -> String -> Bool
 isWord wordList word = word `elem` wordList
