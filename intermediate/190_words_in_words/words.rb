@@ -21,7 +21,7 @@ end
 
 # -----------------------
 
-word = 'grayson'
+word = ARGV[0]
 
 dict = File.open('../../files/enable1.txt', 'r').readlines.map { |l|
    l.chomp
