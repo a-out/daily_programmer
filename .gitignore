@@ -1,2 +1,7 @@
+# vagrant
+Vagrantfile
+.vagrant/
+
+# build output
 *.hi
 *.o
