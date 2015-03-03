@@ -13,6 +13,11 @@ class Forest:
    def generate(self):
       coords = [(x, y) for x in range(self.size) for y in range(self.size)]
       world = {}
+
+      # default empty world
+      for pos in product(range(FOREST_SIZE), range(FOREST_SIZE)):
+         world[pos] = None
+
       random.shuffle(coords)
 
       # todo: don't hardcode these slices
@@ -25,6 +30,9 @@ class Forest:
 
       self.grid = world
 
+   def step(self):
+
+
    def neighbors(self, pos):
       x, y = pos
       p_x = [a for a in range(x - 1, x + 2)]
@@ -32,8 +40,7 @@ class Forest:
       neighbor_coords = filter(lambda p : p != pos,
          product(p_x, p_y)
       )
-      import ipdb; ipdb.set_trace()
-      return [self.grid[x] for x in neighbor_coords]
+      return [self.grid[x] for x in neighbor_coords if x is not None]
 
    def draw(self):
       for x in range(self.size):
@@ -44,6 +51,9 @@ class Forest:
 
          print("")
 
+   def place(self, coord, entity_type):
+      self.grid[coord] = entity_type(self, coord)
+
 
 
 class Tree:
@@ -51,6 +61,19 @@ class Tree:
       self.forest = forest
       self.pos = pos
       self.char = type
+      self.age = 0
+
+   def step(self):
+
+
+      # age tree
+      self.age += 1
+      if self.age == 12 and self.char == 'S':
+         self.age = 0
+         self.char = 'T'
+      elif self.age == 120 and self.char == 'T':
+         self.age = 0
+         self.char = 'E'
 
 
 class Bear:
@@ -70,5 +93,5 @@ class Lumberjack:
 # -------------------------------------
 
 forest = Forest(FOREST_SIZE)
+forest.place((0, 0), Bear)
 forest.draw()
-neighbors = forest.neighbors((5, 5))
